@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vicente's Command Center</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a1a; color: #e0e0e0; min-height: 100vh; padding: 20px; }
+  .header { text-align: center; margin-bottom: 30px; }
+  .header h1 { font-size: 28px; color: #fff; margin-bottom: 5px; }
+  .header .subtitle { color: #888; font-size: 14px; }
+  .header .updated { color: #555; font-size: 12px; margin-top: 5px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; max-width: 1200px; margin: 0 auto; }
+  .card { background: #12122a; border: 1px solid #1e1e3a; border-radius: 12px; padding: 20px; transition: border-color 0.2s; }
+  .card:hover { border-color: #3a3a6a; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .card-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+  .badge-active { background: #0d3320; color: #4ade80; }
+  .badge-live { background: #3b1313; color: #f87171; animation: pulse 2s infinite; }
+  .badge-planning { background: #2d2305; color: #fbbf24; }
+  .badge-paused { background: #1a1a2e; color: #888; }
+  .badge-idle { background: #1a1a2e; color: #666; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+  .metric { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #1a1a30; font-size: 13px; }
+  .metric:last-child { border-bottom: none; }
+  .metric-label { color: #888; }
+  .metric-value { color: #fff; font-weight: 500; }
+  .metric-value.green { color: #4ade80; }
+  .metric-value.red { color: #f87171; }
+  .metric-value.yellow { color: #fbbf24; }
+  .progress-bar { width: 100%; height: 6px; background: #1a1a30; border-radius: 3px; margin-top: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+  .tasks { margin-top: 10px; }
+  .task { font-size: 12px; padding: 4px 0; color: #aaa; display: flex; align-items: center; gap: 6px; }
+  .task-done { color: #4ade80; }
+  .task-pending { color: #fbbf24; }
+  .section-title { font-size: 18px; font-weight: 600; color: #fff; margin: 24px auto 12px; max-width: 1200px; padding-left: 4px; }
+  .cron-table { width: 100%; font-size: 12px; border-collapse: collapse; margin-top: 8px; }
+  .cron-table th { text-align: left; color: #666; padding: 4px 8px; border-bottom: 1px solid #1a1a30; }
+  .cron-table td { padding: 4px 8px; border-bottom: 1px solid #0f0f20; }
+  .cron-ok { color: #4ade80; }
+  .cron-idle { color: #666; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🎯 Vicente's Command Center</h1>
+  <div class="subtitle">超级个体作战面板</div>
+  <div class="updated" id="lastUpdated">Last updated: --</div>
+</div>
+
+<div class="grid" id="projectGrid">
+  <!-- Cards injected by update script -->
+</div>
+
+<div class="section-title">⏰ Cron Jobs</div>
+<div class="card" style="max-width: 1200px; margin: 0 auto;">
+  <table class="cron-table" id="cronTable">
+    <thead><tr><th>Name</th><th>Schedule</th><th>Next</th><th>Last</th><th>Status</th></tr></thead>
+    <tbody id="cronBody"></tbody>
+  </table>
+</div>
+
+<script>
+// This will be populated by Jerry's update script
+const DASHBOARD_DATA = {"updatedAt": "2026-02-20 02:20 PST", "projects": [{"icon": "🐼", "name": "Panda Poster", "status": "active", "statusLabel": "ACTIVE", "metrics": [{"label": "已发布", "value": "7 篇", "color": "green"}, {"label": "待发布队列", "value": "4 篇", "color": "yellow"}, {"label": "下一篇", "value": "007 寡妇交易 (明天 10AM)"}], "progress": 63, "progressColor": "#4ade80"}, {"icon": "📹", "name": "Panda Videos", "status": "active", "statusLabel": "ACTIVE", "metrics": [{"label": "已生成视频", "value": "15 个"}, {"label": "最新", "value": "播客止损陷阱 V4"}, {"label": "Pipeline", "value": "Wolf数据→TTS→Remotion"}], "tasks": [{"text": "端到端 pipeline", "done": true}, {"text": "播客双人格式", "done": true}, {"text": "V4 待 Vicente 反馈", "done": false}]}, {"icon": "📈", "name": "Risk-First-Protocol", "status": "live", "statusLabel": "LIVE TRADING", "metrics": [{"label": "状态", "value": "实盘交易中", "color": "red"}, {"label": "账户", "value": "~$1,906 (Coinbase)"}, {"label": "策略", "value": "Trend-Momentum + 海龟期货"}, {"label": "扫描频率", "value": "现货1h / 期货2h"}]}, {"icon": "🐺", "name": "Wolf_Fintrack", "status": "active", "statusLabel": "ACTIVE", "metrics": [{"label": "Collector", "value": "Up 41 hours", "color": "green"}, {"label": "Symbols", "value": "18 (Fidelity + 贵金属)"}, {"label": "估值", "value": "PEG + DCF 自动检测"}, {"label": "DCF Cron", "value": "每周六 9AM"}]}, {"icon": "💼", "name": "Operation Undock", "status": "planning", "statusLabel": "PLANNING", "metrics": [{"label": "目标", "value": "AI Platform Engineer"}, {"label": "路径", "value": "SysEng → Platform → AI Platform"}, {"label": "简历", "value": "cv.yaml 待重写"}], "tasks": [{"text": "career_background.md 母本", "done": true}, {"text": "career-plan-2026 规划", "done": true}, {"text": "cv.yaml 重写", "done": false}, {"text": "开始投递", "done": false}]}, {"icon": "💰", "name": "投资组合", "status": "active", "statusLabel": "ACTIVE", "metrics": [{"label": "Fidelity", "value": "稳健型 (SCHD/XLV/BND)"}, {"label": "Robinhood", "value": "成长型 (NVDA/SOFI/PLTR)"}, {"label": "Coinbase", "value": "自动交易 (~$1,906)"}, {"label": "监控", "value": "6个价格警报 + 日报"}]}, {"icon": "🕵️", "name": "Project Pretender", "status": "planning", "statusLabel": "PLANNING", "metrics": [{"label": "定位", "value": "中产润出信息服务"}, {"label": "渠道", "value": "Telegram + X 小号"}, {"label": "数据采集", "value": "每日自动 (cron)"}], "tasks": [{"text": "8国研究报告", "done": true}, {"text": "诈骗分析", "done": true}, {"text": "购买预付费 SIM", "done": false}, {"text": "频道上线", "done": false}]}, {"icon": "📖", "name": "Novel-to-Audio", "status": "paused", "statusLabel": "PAUSED", "metrics": [{"label": "Pipeline", "value": "Grok→剧本JSON→Qwen3-TTS"}, {"label": "阻塞", "value": "等 ComfyUI 环境", "color": "yellow"}]}, {"icon": "🎓", "name": "副业规划", "status": "planning", "statusLabel": "PLANNING", "metrics": [{"label": "飞轮", "value": "Risk-First + AI课程 + X + 投资"}, {"label": "合规", "value": "已审查 ByteDance 合同 ✅", "color": "green"}]}], "crons": []};
+
+function renderDashboard(data) {
+  document.getElementById('lastUpdated').textContent = `Last updated: ${data.updatedAt}`;
+  
+  const grid = document.getElementById('projectGrid');
+  grid.innerHTML = data.projects.map(p => `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">${p.icon} ${p.name}</div>
+        <span class="badge badge-${p.status}">${p.statusLabel}</span>
+      </div>
+      ${p.metrics.map(m => `
+        <div class="metric">
+          <span class="metric-label">${m.label}</span>
+          <span class="metric-value ${m.color || ''}">${m.value}</span>
+        </div>
+      `).join('')}
+      ${p.progress !== undefined ? `
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${p.progress}%; background: ${p.progressColor || '#4ade80'};"></div>
+        </div>
+      ` : ''}
+      ${p.tasks ? `
+        <div class="tasks">
+          ${p.tasks.map(t => `
+            <div class="task ${t.done ? 'task-done' : 'task-pending'}">
+              ${t.done ? '✅' : '⏳'} ${t.text}
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `).join('');
+  
+  const cronBody = document.getElementById('cronBody');
+  cronBody.innerHTML = data.crons.map(c => `
+    <tr>
+      <td>${c.name}</td>
+      <td style="color: #888">${c.schedule}</td>
+      <td>${c.next}</td>
+      <td style="color: #888">${c.last}</td>
+      <td class="${c.status === 'ok' ? 'cron-ok' : 'cron-idle'}">${c.status}</td>
+    </tr>
+  `).join('');
+}
+
+renderDashboard(DASHBOARD_DATA);
+</script>
+</body>
+</html>

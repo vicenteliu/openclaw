@@ -1,0 +1,9 @@
+{
+  "session_id": "unknown",
+  "timestamp": "2026-02-20T10:35:35+00:00",
+  "task_name": "claude-code-task",
+  "cwd": "/var/folders/ks/6bt86tm935s1jg1wjf397f0h0000gn/T/tmp.Yi18hkl8nI",
+  "event": "Stop",
+  "output": "",
+  "status": "done"
+}
