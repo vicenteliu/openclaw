@@ -27,6 +27,13 @@ DNS / NSS / 安全蜜罐 / NTA / NPM / 办公网飞书媒体服务 / 职场防�
 ## 文档状态
 - 已完成提交版文档收敛：Executive Summary、Problem→Solution Mapping、Implementation Plan（含 Entry/Exit Criteria）、Risk & Mitigation、Decision & Ask。
 
+## 归档（OpenClaw 本机）
+- 项目目录：`/Users/vicenteliu/openclaw/projects/GapBridge/Edge_Compute_System/`
+- Docs 归档：`/Users/vicenteliu/openclaw/projects/GapBridge/Edge_Compute_System/docs/`
+  - 原始说明（已归档）：`docs/00-source/00-project-overview.md`
+  - 提交稿（中文，5-part + 合并版）：`docs/10-submission/Suggestions-for-Improving-Edge-Compute-System-Deployment/`
+  - 原始 tech doc / gap&improvements / automation plan：目前仅 placeholder，待补齐原文
+
 ## 来源
 - Daily notes: `memory/2026-02-20.md`
 - OpenClaw session transcript (Telegram) 中包含项目说明文本（已关键词检索确认）
